@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drifting Car Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      overflow: hidden;
+      background: #222;
+    }
+    canvas {
+      display: block;
+      background: #2c2c2c;
+      border: 2px solid #fff;
+      margin: auto;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const car = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      angle: 0,
+      speed: 0,
+      maxSpeed: 6,
+      accel: 0.2,
+      friction: 0.05,
+      drift: 0.95,
+      turnSpeed: 0.05
+    };
+
+    const keys = {};
+
+    document.addEventListener("keydown", e => keys[e.code] = true);
+    document.addEventListener("keyup", e => keys[e.code] = false);
+
+    function update() {
+      // Acceleration / braking
+      if (keys["ArrowUp"]) car.speed += car.accel;
+      if (keys["ArrowDown"]) car.speed -= car.accel;
+      
+      // Speed limits
+      car.speed *= car.drift;
+      if (car.speed > car.maxSpeed) car.speed = car.maxSpeed;
+      if (car.speed < -car.maxSpeed / 2) car.s
