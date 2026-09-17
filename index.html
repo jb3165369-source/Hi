@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculator</title>
+    <style>
+        :root {
+            --bg1: #020812;
+            --bg2: #0b1930;
+            --panel: rgba(12, 20, 35, 0.9);
+            --panel-border: rgba(110, 241, 255, 0.45);
+            --screen: rgba(7, 18, 24, 0.9);
+            --screen-text: #8bf9ff;
+            --accent: #ff8a1d;
+            --accent-2: #ffbe6b;
+            --cyan: #63f5ff;
+            --blue: #75a3ff;
+            --danger: #ff5b7d;
+            --success: #59f0a8;
+            --text: #edf6ff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at top, rgba(117, 163, 255, 0.2), transparent 25%),
+                linear-gradient(135deg, var(--bg1), var(--bg2) 55%, #030a14);
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .challenge-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 40;
+            border: 1px solid rgba(255, 138, 29, 0.5);
+            background: linear-gradient(180deg, rgba(22, 30, 44, 0.96), rgba(12, 18, 30, 0.96));
+            color: var(--accent-2);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.55rem;
+            letter-spacing: 0.12em;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(255, 138, 29, 0.18);
+        }
+
+        .challenge-btn:hover {
+            box-shadow: 0 0 20px rgba(255, 138, 29, 0.24);
+        }
+
+        .tutorial-modal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 8, 18, 0.82);
+            backdrop-filter: blur(6px);
+            z-index: 60;
+            padding: 20px;
+        }
+
+        .tutorial-panel {
+            width: min(92vw, 440px);
+            background: linear-gradient(180deg, rgba(18, 27, 42, 1), rgba(9, 14, 24, 1));
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 0 30px rgba(99, 245, 255, 0.14);
+        }
+
+        .tutorial-panel h2 {
+            margin: 0 0 14px;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+
+        .tutorial-panel p {
+            margin: 0;
+            color: var(--text);
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .tutorial-panel button {
+            width: 100%;
+            margin-top: 18px;
+            border: 1px solid rgba(89, 240, 168, 0.5);
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(89, 240, 168, 0.24), rgba(89, 240, 168, 0.12));
+            color: var(--success);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            padding: 10px 12px;
+            text-transform: uppercase;
+        }
+
+        .admin-btn {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 40;
+            border: 1px solid rgba(99, 245, 255, 0.5);
+            background: linear-gradient(180deg, rgba(22, 30, 44, 0.96), rgba(12, 18, 30, 0.96));
+            color: var(--cyan);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.55rem;
+            letter-spacing: 0.12em;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(99, 245, 255, 0.14);
+        }
+
+        .admin-btn:hover {
+            box-shadow: 0 0 20px rgba(99, 245, 255, 0.24);
+        }
+
+       
+        .quiz-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 8, 18, 0.8);
+            backdrop-filter: blur(6px);
+            z-index: 50;
+            padding: 20px;
+        }
+
+        .quiz-modal.open {
+            display: flex;
+        }
+
+        .quiz-panel {
+            width: min(92vw, 480px);
+            background: linear-gradient(180deg, rgba(18, 27, 42, 1), rgba(9, 14, 24, 1));
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            padding: 18px 18px 14px;
+            box-shadow: 0 0 30px rgba(99, 245, 255, 0.14);
+        }
+
+        .quiz-panel h2 {
+            margin: 0 0 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+
+        .quiz-question {
+            margin-bottom: 14px;
+        }
+
+        .quiz-question label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .quiz-question input {
+            width: 100%;
+            border: 1px solid rgba(99, 245, 255, 0.4);
+            border-radius: 10px;
+            background: rgba(7, 18, 24, 0.9);
+            color: var(--screen-text);
+            padding: 10px 12px;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .quiz-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .quiz-actions button {
+            flex: 1;
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 10px 12px;
+        }
+
+        .quiz-actions .submit {
+            background: linear-gradient(180deg, rgba(89, 240, 168, 0.24), rgba(89, 240, 168, 0.12));
+            color: var(--success);
+            border: 1px solid rgba(89, 240, 168, 0.5);
+        }
+
+        .quiz-actions .close {
+            background: linear-gradient(180deg, rgba(255, 138, 29, 0.18), rgba(255, 138, 29, 0.1));
+            color: var(--accent-2);
+            border: 1px solid rgba(255, 138, 29, 0.45);
+        }
+
+        .quiz-result {
+            margin-top: 12px;
+            min-height: 20px;
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .quiz-result.success {
+            color: var(--success);
+        }
+
+        .quiz-result.error {
+            color: var(--danger);
+        }
+
+        .admin-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 8, 18, 0.8);
+            backdrop-filter: blur(6px);
+            z-index: 50;
+            padding: 20px;
+        }
+
+        .admin-modal.open {
+            display: flex;
+        }
+
+        .admin-panel {
+            width: min(92vw, 380px);
+            background: linear-gradient(180deg, rgba(18, 27, 42, 1), rgba(9, 14, 24, 1));
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 0 30px rgba(99, 245, 255, 0.14);
+        }
+
+        .admin-panel h2 {
+            margin: 0 0 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+
+        .admin-panel input {
+            width: 100%;
+            border: 1px solid rgba(99, 245, 255, 0.4);
+            border-radius: 10px;
+            background: rgba(7, 18, 24, 0.9);
+            color: var(--screen-text);
+            padding: 10px 12px;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .admin-actions button {
+            flex: 1;
+            border: 1px solid;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 10px 12px;
+        }
+
+        .admin-actions .submit {
+            background: linear-gradient(180deg, rgba(89, 240, 168, 0.24), rgba(89, 240, 168, 0.12));
+            color: var(--success);
+            border-color: rgba(89, 240, 168, 0.5);
+        }
+
+        .admin-actions .close {
+            background: linear-gradient(180deg, rgba(255, 138, 29, 0.18), rgba(255, 138, 29, 0.1));
+            color: var(--accent-2);
+            border-color: rgba(255, 138, 29, 0.45);
+        }
+
+        .admin-result {
+            min-height: 20px;
+            margin: 12px 0 0;
+            text-align: center;
+            font-weight: 800;
+            color: var(--danger);
+        }
+
+        .code-toggle {
+            position: fixed;
+            left: 10px;
+            bottom: 10px;
+            z-index: 30;
+            border: 1px solid rgba(99, 245, 255, 0.35);
+            background: linear-gradient(180deg, rgba(18, 27, 42, 0.82), rgba(7, 12, 22, 0.82));
+            color: var(--text);
+            padding: 4px 7px;
+            border-radius: 7px;
+            font-size: 0.42rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(99, 245, 255, 0.08);
+            opacity: 0.8;
+        }
+
+        .code-toggle.active {
+            border-color: rgba(255, 138, 29, 0.7);
+            box-shadow: 0 0 20px rgba(255, 138, 29, 0.22);
+            color: var(--accent-2);
+        }
+
+        .calculator {
+            width: min(92vw, 430px);
+            background: linear-gradient(180deg, rgba(18, 27, 42, 0.96), rgba(9, 14, 24, 0.96));
+            border: 1px solid var(--panel-border);
+            border-radius: 22px;
+            box-shadow: 0 0 28px rgba(99, 245, 255, 0.14), 0 0 60px rgba(255, 138, 29, 0.15);
+            padding: 22px 18px 18px;
+        }
+
+        .display {
+            background: var(--screen);
+            border: 1px solid rgba(99, 245, 255, 0.4);
+            border-radius: 14px;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-size: clamp(1.8rem, 6vw, 3rem);
+            letter-spacing: 0.08em;
+            font-weight: 800;
+            color: var(--screen-text);
+            text-shadow: 0 0 10px rgba(99, 245, 255, 0.8);
+            margin-bottom: 18px;
+            padding: 16px;
+            overflow: hidden;
+            white-space: nowrap;
+            word-break: break-all;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .key {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            background: linear-gradient(180deg, #15273d, #0d1729);
+            color: var(--text);
+            font-size: clamp(1.2rem, 4vw, 1.7rem);
+            font-weight: 700;
+            height: 64px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            box-shadow: inset 0 0 12px rgba(99, 245, 255, 0.05);
+        }
+
+        .key:hover {
+            transform: translateY(-1px);
+            border-color: rgba(99, 245, 255, 0.75);
+            box-shadow: 0 0 12px rgba(99, 245, 255, 0.18);
+        }
+
+        .key.action {
+            background: linear-gradient(180deg, rgba(255, 138, 29, 0.22), rgba(255, 138, 29, 0.1));
+            border-color: rgba(255, 138, 29, 0.45);
+            color: var(--accent-2);
+        }
+
+        .key.operator {
+            background: linear-gradient(180deg, rgba(117, 163, 255, 0.2), rgba(117, 163, 255, 0.1));
+            border-color: rgba(117, 163, 255, 0.42);
+            color: var(--cyan);
+        }
+
+        .key.enter {
+            background: linear-gradient(180deg, rgba(89, 240, 168, 0.24), rgba(89, 240, 168, 0.12));
+            border-color: rgba(89, 240, 168, 0.5);
+            color: var(--success);
+        }
+
+        .status {
+            margin-top: 16px;
+            min-height: 22px;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #ffd166;
+        }
+
+        .status.error { color: var(--danger); }
+        .status.success { color: var(--success); }
+        .status.warning { color: var(--cyan); }
+    </style>
+</head>
+<body>
+    <button class="admin-btn" id="adminBtn" type="button">Control Panel</button>
+    <button class="challenge-btn" id="challengeBtn" type="button">Challenge</button>
+    <div class="tutorial-modal" id="tutorialModal" aria-modal="true" role="dialog">
+        <div class="tutorial-panel">
+            <h2>How To Enter</h2>
+            <p>Do the challenge. When finished, press Code Mode, then put in the code.</p>
+            <button id="closeTutorial" type="button">Got it</button>
+        </div>
+    </div>
+
+    <div class="admin-modal" id="adminModal" aria-modal="true" role="dialog">
+        <form class="admin-panel" id="adminForm">
+            <h2>Control Panel Access</h2>
+            <input id="adminPassword" type="password" placeholder="Enter password" autocomplete="current-password" required />
+            <div class="admin-actions">
+                <button class="close" id="closeAdmin" type="button">Close</button>
+                <button class="submit" type="submit">Enter</button>
+            </div>
+            <p class="admin-result" id="adminResult" role="status"></p>
+        </form>
+    </div>
+
+    <div class="quiz-modal" id="quizModal" aria-modal="true" role="dialog">
+        <div class="quiz-panel">
+            <h2>Math Check</h2>
+            <div class="quiz-question">
+                <label for="q1">1) 8 + 7 =</label>
+                <input id="q1" type="number" inputmode="numeric" />
+            </div>
+            <div class="quiz-question">
+                <label for="q2">2) 12 × 3 =</label>
+                <input id="q2" type="number" inputmode="numeric" />
+            </div>
+            <div class="quiz-question">
+                <label for="q3">3) 81 ÷ 9 =</label>
+                <input id="q3" type="number" inputmode="numeric" />
+            </div>
+            <div class="quiz-actions">
+                <button class="close" id="closeQuiz" type="button">Close</button>
+                <button class="submit" id="submitQuiz" type="button">Submit</button>
+            </div>
+            <div class="quiz-result" id="quizResult"></div>
+        </div>
+    </div>
+
+    <button class="code-toggle" id="codeToggle" type="button">Code Mode</button>
+
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="keypad">
+            <button class="key action" type="button" data-action="clear">C</button>
+            <button class="key action" type="button" data-action="delete">⌫</button>
+            <button class="key action" type="button" data-action="percent">%</button>
+            <button class="key operator" type="button" data-value="/">÷</button>
+
+            <button class="key" type="button" data-value="7">7</button>
+            <button class="key" type="button" data-value="8">8</button>
+            <button class="key" type="button" data-value="9">9</button>
+            <button class="key operator" type="button" data-value="*">×</button>
+
+            <button class="key" type="button" data-value="4">4</button>
+            <button class="key" type="button" data-value="5">5</button>
+            <button class="key" type="button" data-value="6">6</button>
+            <button class="key operator" type="button" data-value="-">−</button>
+
+            <button class="key" type="button" data-value="1">1</button>
+            <button class="key" type="button" data-value="2">2</button>
+            <button class="key" type="button" data-value="3">3</button>
+            <button class="key operator" type="button" data-value="+">+</button>
+
+            <button class="key" type="button" data-value="0" style="grid-column: span 2;">0</button>
+            <button class="key" type="button" data-value=".">.</button>
+            <button class="key enter" type="button" id="enterBtn">=</button>
+        </div>
+        <div class="status" id="status">Ready</div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const status = document.getElementById('status');
+        const codeToggle = document.getElementById('codeToggle');
+        const enterBtn = document.getElementById('enterBtn');
+        const challengeBtn = document.getElementById('challengeBtn');
+        const quizModal = document.getElementById('quizModal');
+        const closeQuiz = document.getElementById('closeQuiz');
+        const submitQuiz = document.getElementById('submitQuiz');
+        const quizResult = document.getElementById('quizResult');
+        const tutorialModal = document.getElementById('tutorialModal');
+        const closeTutorial = document.getElementById('closeTutorial');
+        const adminBtn = document.getElementById('adminBtn');
+        const adminModal = document.getElementById('adminModal');
+        const adminForm = document.getElementById('adminForm');
+        const adminPassword = document.getElementById('adminPassword');
+        const closeAdmin = document.getElementById('closeAdmin');
+        const adminResult = document.getElementById('adminResult');
+        const correctCode = '1432';
+
+        let codeMode = false;
+        let expression = '';
+        let codeInput = '';
+        let challengePassed = false;
+        let quizQuestions = [];
+        let quizAnswers = [];
+
+        function randomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateQuizQuestions() {
+            let nextQuestions;
+            do {
+                const addLeft = randomNumber(5, 20);
+                const addRight = randomNumber(3, 15);
+                const multiplyLeft = randomNumber(2, 12);
+                const multiplyRight = randomNumber(2, 9);
+                const divideRight = randomNumber(2, 12);
+                const divideAnswer = randomNumber(2, 12);
+
+                nextQuestions = [
+                    { text: `${addLeft} + ${addRight}`, answer: addLeft + addRight },
+                    { text: `${multiplyLeft} × ${multiplyRight}`, answer: multiplyLeft * multiplyRight },
+                    { text: `${divideRight * divideAnswer} ÷ ${divideRight}`, answer: divideAnswer }
+                ];
+            } while (quizQuestions.length > 0 && nextQuestions.every((question, index) => question.text === quizQuestions[index].text));
+
+            quizQuestions = nextQuestions;
+            quizAnswers = quizQuestions.map((question) => String(question.answer));
+            quizQuestions.forEach((question, index) => {
+                document.querySelector(`label[for="q${index + 1}"]`).textContent = `${index + 1}) ${question.text} =`;
+            });
+        }
+
+        function openQuiz() {
+            quizModal.classList.add('open');
+            quizResult.textContent = '';
+            quizResult.className = 'quiz-result';
+        }
+
+        function closeQuizModal() {
+            quizModal.classList.remove('open');
+            quizResult.textContent = '';
+            quizResult.className = 'quiz-result';
+        }
+
+        function checkQuiz() {
+            const answers = [
+                document.getElementById('q1').value.trim(),
+                document.getElementById('q2').value.trim(),
+                document.getElementById('q3').value.trim()
+            ];
+
+            const correct = answers.every((answer, index) => answer === quizAnswers[index]);
+
+            if (correct) {
+                challengePassed = true;
+                codeToggle.textContent = 'Code Mode';
+                quizResult.textContent = 'Code: 1432';
+                quizResult.className = 'quiz-result success';
+                setStatus('Challenge passed', 'success');
+                setTimeout(() => {
+                    closeQuizModal();
+                }, 800);
+            } else {
+                quizResult.textContent = 'Try again';
+                quizResult.className = 'quiz-result error';
+                generateQuizQuestions();
+                document.getElementById('q1').value = '';
+                document.getElementById('q2').value = '';
+                document.getElementById('q3').value = '';
+                setStatus('Try again', 'error');
+            }
+        }
+
+        function updateDisplay(value) {
+            display.textContent = value === '' ? '0' : value;
+        }
+
+        function setStatus(message, type = '') {
+            status.textContent = message;
+            status.className = 'status' + (type ? ' ' + type : '');
+        }
+
+        function clearCalculator() {
+            expression = '';
+            codeInput = '';
+            updateDisplay('0');
+            setStatus(codeMode ? 'Code mode active' : 'Ready', codeMode ? 'warning' : '');
+        }
+
+        function tryEvaluate() {
+            if (!expression) {
+                return;
+            }
+
+            const sanitized = expression
+                .replace(/×/g, '*')
+                .replace(/÷/g, '/')
+                .replace(/[^0-9+\-*/().% ]/g, '');
+
+            if (!sanitized) {
+                expression = '';
+                updateDisplay('0');
+                setStatus('Invalid input', 'error');
+                return;
+            }
+
+            try {
+                const result = Function(`"use strict"; return (${sanitized});`)();
+                const formatted = Number.isInteger(result) ? String(result) : String(Number(result.toFixed(10)));
+                expression = formatted;
+                updateDisplay(formatted);
+                setStatus('Calculated', 'success');
+            } catch (error) {
+                expression = '';
+                updateDisplay('0');
+                setStatus('Error', 'error');
+            }
+        }
+
+        function handleNumberInput(value) {
+            if (codeMode) {
+                if (codeInput.length < 4) {
+                    codeInput += value;
+                    updateDisplay(codeInput);
+                    setStatus('Type code: 1432', 'warning');
+                }
+                return;
+            }
+
+            if (value === '.' && expression.includes('.')) {
+                return;
+            }
+
+            expression += value;
+            updateDisplay(expression);
+            setStatus('Ready');
+        }
+
+        function handleOperatorInput(value) {
+            if (codeMode) {
+                return;
+            }
+
+            if (!expression || /[+\-*/]$/.test(expression)) {
+                return;
+            }
+
+            expression += value;
+            updateDisplay(expression);
+            setStatus('Ready');
+        }
+
+        function handleAction(action) {
+            if (codeMode) {
+                if (action === 'clear') {
+                    codeInput = '';
+                    updateDisplay('0');
+                    setStatus('Code mode active', 'warning');
+                } else if (action === 'delete' && codeInput.length > 0) {
+                    codeInput = codeInput.slice(0, -1);
+                    updateDisplay(codeInput || '0');
+                    setStatus('Type code: 1432', 'warning');
+                }
+                return;
+            }
+
+            if (action === 'clear') {
+                expression = '';
+                updateDisplay('0');
+                setStatus('Ready');
+            } else if (action === 'delete') {
+                expression = expression.slice(0, -1);
+                updateDisplay(expression || '0');
+            } else if (action === 'percent') {
+                if (expression) {
+                    expression = String(Number(expression) / 100);
+                    updateDisplay(expression);
+                }
+            }
+        }
+
+        async function checkForRedirect() {
+            try {
+                const response = await fetch(window.location.protocol === 'file:'
+                    ? 'http://localhost:3000/api/site-state'
+                    : '/api/site-state');
+                const state = await response.json();
+                if (state.redirectUrl) {
+                    window.location.href = state.redirectUrl;
+                }
+            } catch (error) {
+                // Keep the calculator usable when the server is unavailable.
+            }
+        }
+
+        generateQuizQuestions();
+        checkForRedirect();
+        setInterval(checkForRedirect, 1000);
+
+        document.querySelectorAll('.key[data-value]').forEach((button) => {
+            const value = button.dataset.value;
+            const isOperator = ['+', '-', '*', '/', '.'].includes(value);
+
+            button.addEventListener('click', () => {
+                if (isOperator) {
+                    if (value === '.') {
+                        handleNumberInput('.');
+                    } else {
+                        handleOperatorInput(value);
+                    }
+                } else {
+                    handleNumberInput(value);
+                }
+            });
+        });
+
+        document.querySelectorAll('.key.action').forEach((button) => {
+            button.addEventListener('click', () => {
+                handleAction(button.dataset.action);
+            });
+        });
+
+        enterBtn.addEventListener('click', () => {
+            if (codeMode) {
+                if (codeInput === correctCode) {
+                    window.location.href = 'gamespage.html';
+                } else {
+                    codeInput = '';
+                    updateDisplay('0');
+                    setStatus('Incorrect code', 'error');
+                }
+                return;
+            }
+
+            tryEvaluate();
+        });
+
+        challengeBtn.addEventListener('click', openQuiz);
+        closeQuiz.addEventListener('click', closeQuizModal);
+        submitQuiz.addEventListener('click', checkQuiz);
+        closeTutorial.addEventListener('click', () => {
+            tutorialModal.style.display = 'none';
+        });
+
+        adminBtn.addEventListener('click', () => {
+            adminModal.classList.add('open');
+            adminResult.textContent = '';
+            adminPassword.focus();
+        });
+
+        closeAdmin.addEventListener('click', () => {
+            adminModal.classList.remove('open');
+            adminForm.reset();
+            adminResult.textContent = '';
+        });
+
+        adminForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            adminResult.textContent = 'Checking...';
+
+            try {
+                const response = await fetch('/api/site-state', {
+                    headers: { 'x-admin-password': adminPassword.value }
+                });
+                const result = await response.json();
+
+                if (response.ok && result.isAdmin) {
+                    window.location.href = 'controlpanel.html';
+                    return;
+                }
+
+                adminResult.textContent = 'Incorrect password';
+                adminPassword.select();
+            } catch (error) {
+                adminResult.textContent = 'Unable to connect to the server';
+            }
+        });
+
+        codeToggle.addEventListener('click', () => {
+            codeMode = !codeMode;
+            codeToggle.classList.toggle('active', codeMode);
+            codeInput = '';
+            expression = '';
+            updateDisplay('0');
+            setStatus(codeMode ? 'Code mode active' : 'Ready', codeMode ? 'warning' : '');
+            codeToggle.textContent = codeMode ? 'Calculator' : 'Code Mode';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>calculator</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Bungee+Tint&family=Momo+Trust+Display&display=swap" rel="stylesheet" />
+        <style>
+            :root {
+                --bg-1: #050b17;
+                --bg-2: #0d1d35;
+                --panel: rgba(10, 16, 28, 0.72);
+                --card: rgba(14, 22, 40, 0.92);
+                --line: rgba(96, 247, 255, 0.4);
+                --cyan: #5ef2ff;
+                --blue: #5f87ff;
+                --orange: #ff8a1d;
+                --pink: #ff5ec9;
+                --gold: #ffd166;
+                --text: #edf9ff;
+            }
+
+            * { box-sizing: border-box; }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                font-family: Arial, Helvetica, sans-serif;
+                color: var(--text);
+                background:
+                    radial-gradient(circle at top, rgba(95, 135, 255, 0.25), transparent 25%),
+                    radial-gradient(circle at bottom right, rgba(255, 94, 201, 0.18), transparent 25%),
+                    linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, #020812);
+                padding: 32px 18px 50px;
+            }
+
+            .page-shell {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .topbar {
+                text-align: center;
+                margin-bottom: 24px;
+                padding: 22px 18px 16px;
+                border: 1px solid var(--line);
+                border-radius: 18px;
+                background: rgba(8, 14, 25, 0.8);
+                box-shadow: 0 0 30px rgba(94, 242, 255, 0.12);
+            }
+
+            .brand {
+                display: inline-block;
+                font-family: "Momo Trust Display", sans-serif;
+                font-size: clamp(2.5rem, 6vw, 5rem);
+                font-weight: 900;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                background: linear-gradient(180deg, #ffb562, var(--orange), #d15900);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                text-shadow: 0 2px 0 rgba(116, 52, 0, 0.8), 0 8px 20px rgba(255, 138, 29, 0.35);
+                transform: perspective(600px) rotateX(12deg);
+            }
+
+            .brand-row {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 14px;
+            }
+
+            .tiktok-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                color: #8be9ff;
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-decoration: none;
+                transition: color 0.2s ease, transform 0.2s ease;
+            }
+
+            .tiktok-link:hover {
+                color: #b6f3ff;
+                transform: translateY(-2px);
+            }
+
+            .tiktok-logo {
+                width: 26px;
+                height: 26px;
+                fill: #8be9ff;
+                filter: drop-shadow(2px 0 #ff3d5f);
+            }
+
+            .subtitle {
+                margin-top: 12px;
+                font-family: "Bungee Tint", sans-serif;
+                font-size: clamp(1.1rem, 2vw, 1.8rem);
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #ff3030;
+                text-shadow: 0 0 12px rgba(255, 48, 48, 0.5);
+            }
+
+            .search-bar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 18px;
+                padding: 4px 14px;
+                border: 1px solid rgba(94, 242, 255, 0.42);
+                border-radius: 12px;
+                background: rgba(8, 14, 25, 0.82);
+                box-shadow: 0 0 18px rgba(94, 242, 255, 0.1);
+            }
+
+            .search-icon {
+                color: var(--cyan);
+                font-size: 1.1rem;
+            }
+
+            .search-input {
+                width: 100%;
+                border: 0;
+                outline: 0;
+                background: transparent;
+                color: var(--text);
+                font: inherit;
+                font-size: 1rem;
+                padding: 10px 0;
+            }
+
+            .search-input::placeholder {
+                color: rgba(237, 249, 255, 0.58);
+            }
+
+            .game-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 12px;
+            }
+
+            .game-item {
+                display: block;
+                text-decoration: none;
+                color: var(--text);
+                padding: 16px 18px;
+                border-radius: 14px;
+                border: 1px solid rgba(94, 242, 255, 0.32);
+                background: linear-gradient(135deg, rgba(18, 30, 49, 0.82), rgba(7, 12, 22, 0.9));
+                box-shadow: inset 0 0 16px rgba(94, 242, 255, 0.05), 0 0 22px rgba(95, 135, 255, 0.12);
+                transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, text-shadow 0.2s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .game-item::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(90deg, rgba(94, 242, 255, 0.08), transparent 40%, rgba(255, 138, 29, 0.08));
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+
+            .game-item:hover {
+                transform: translateY(-2px);
+                border-color: rgba(255, 138, 29, 0.8);
+                box-shadow: 0 0 26px rgba(255, 138, 29, 0.18);
+                text-shadow: 0 0 10px rgba(94, 242, 255, 0.5);
+            }
+
+            .game-item:hover::before {
+                opacity: 1;
+            }
+
+            .label {
+                position: relative;
+                z-index: 1;
+                display: block;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                font-size: 0.95rem;
+                line-height: 1.3;
+                text-transform: uppercase;
+            }
+
+            .no-results {
+                display: none;
+                margin: 24px 0;
+                color: var(--gold);
+                text-align: center;
+                font-weight: 700;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-shell">
+            <div class="topbar">
+                <div class="brand-row">
+                    <div class="brand">Matrix</div>
+                    <a class="tiktok-link" href="https://www.tiktok.com/@fnclipzz47?_r=1&_t=ZG-99n0uvoA7YP" target="_blank" rel="noopener noreferrer" aria-label="TikTok profile for @fnclipzz47" title="TikTok: @fnclipzz47">
+                        <svg class="tiktok-logo" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.2 3h3.1c.2 1.6 1.1 2.8 2.7 3.4v3.2a8 8 0 0 1-2.7-.8v6.3a5.9 5.9 0 1 1-5.1-5.8v3.3a2.7 2.7 0 1 0 1.9 2.5V3.8L14.2 3Z" />
+                        </svg>
+                        <span>@fnclipzz47</span>
+                    </a>
+                </div>
+                <div class="subtitle">Here you can find different fun games!</div>
+            </div>
+
+            <label class="search-bar" for="gameSearch">
+                <span class="search-icon" aria-hidden="true">⌕</span>
+                <input class="search-input" id="gameSearch" type="search" placeholder="Search games..." autocomplete="off" />
+            </label>
+
+            <div class="game-grid">
+                <a class="game-item" href="games/1/fnaf1.html"><span class="label">fnaf1</span></a>
+                <a class="game-item" href="games/1/2/fnaf2.html"><span class="label">fnaf2</span></a>
+                <a class="game-item" href="games/3/fnaf3.html"><span class="label">fnaf3</span></a>
+                <a class="game-item" href="games/4/fnaf4.html"><span class="label">fnaf4</span></a>
+                <a class="game-item" href="games/ps/fnafpizza.html"><span class="label">fnafpizza</span></a>
+                <a class="game-item" href="games/sl/fnafsister.html"><span class="label">fnafsister</span></a>
+                <a class="game-item" href="games/ucn/fnafcustom.html"><span class="label">fnafcustom</span></a>
+                <a class="game-item" href="games/w/fnafworld.html"><span class="label">fnafworld</span></a>
+                <a class="game-item" href="games/subway-surfers-san-francisco.html"><span class="label">subway surfers san francisco</span></a>
+                <a class="game-item" href="games/subway-surfers-havana.html"><span class="label">subway surfers havana</span></a>
+                <a class="game-item" href="games/super-bike-the-champion.html"><span class="label">super bike the champion</span></a>
+                <a class="game-item" href="games/super-liquid-soccer.html"><span class="label">super liquid soccer</span></a>
+                <a class="game-item" href="games/state-io.html"><span class="label">state io</span></a>
+                <a class="game-item" href="games/stick-archers-battle.html"><span class="label">stick archers battle</span></a>
+                <a class="game-item" href="games/stick-fighter.html"><span class="label">stick fighter</span></a>
+                <a class="game-item" href="games/stick-merge.html"><span class="label">stick merge</span></a>
+                <a class="game-item" href="games/subway-surfers-beijing.html"><span class="label">subway surfers beijing</span></a>
+                <a class="game-item" href="games/snowball-io.html"><span class="label">snowball io</span></a>
+                <a class="game-item" href="games/soccer-bros.html"><span class="label">snowball fight</span></a>
+                <a class="game-item" href="games/soccer-random.htm"><span class="label">soccer random</span></a>
+                <a class="game-item" href="games/soccer-io.html"><span class="label">soccer io</span></a>
+                <a class="game-item" href="games/super-star-car.html"><span class="label">super star car</span></a>
+                <a class="game-item" href="games/superhot.html"><span class="label">superhot</span></a>
+                <a class="game-item" href="games/table-tennis-world-tour.html"><span class="label">table tennis world tour</span></a>
+                <a class="game-item" href="games/tag.html"><span class="label">tag</span></a>
+                <a class="game-item" href="games/the-impossible-quiz-2.html"><span class="label">the impossible quiz 2</span></a>
+                <a class="game-item" href="games/the-impossible-quiz.html"><span class="label">the impossible quiz</span></a>
+                <a class="game-item" href="games//spacebar-clicker.html"><span class="label">spacebar clicker</span></a>
+                <a class="game-item" href="games/slow-roads.html"><span class="label">slow roads</span></a>
+                <a class="game-item" href="games/sm-63.html"><span class="label">sm-63</span></a>
+                <a class="game-item" href="games/sm-64.html"><span class="label">sm-64</span></a>
+                <a class="game-item" href="games/snow-rider.html"><span class="label">snow rider</span></a>
+                <a class="game-item" href="games/snow-road.html"><span class="label">snow road</span></a>
+                <a class="game-item" href="games/space-is-key-2.html"><span class="label">space is key 2</span></a>
+                <a class="game-item" href="games/space-is-key.html"><span class="label">space is key</span></a>
+                <a class="game-item" href="games/space-waves.html"><span class="label">space waves</span></a>
+                <a class="game-item" href="games/speed-stars.html"><span class="label">speed stars</span></a>
+                <a class="game-item" href="games/sprunki.html"><span class="label">sprunki</span></a>
+                <a class="game-item" href="games/stack.html"><span class="label">stack</span></a>
+                <a class="game-item" href="games/stacktris.html"><span class="label">stacktris</span></a>
+                <a class="game-item" href="games/ragdoll-archers.html"><span class="label">ragdoll archers</span></a>
+                <a class="game-item" href="games/ragdoll-hit.html"><span class="label">ragdoll hit</span></a>
+                <a class="game-item" href="games/ragdoll-soccer.html"><span class="label">ragdoll soccer</span></a>
+                <a class="game-item" href="games/red-ball-4-vol-1.html"><span class="label">red ball 4 vol 1</span></a>
+                <a class="game-item" href="games/red-ball-4-vol-2.html"><span class="label">red ball 4 vol 2</span></a>
+                <a class="game-item" href="games/red-ball-4-vol-3.html"><span class="label">red ball 4 vol 3</span></a>
+                <a class="game-item" href="games/retro-bowl-college.html"><span class="label">retro bowl college</span></a>
+                <a class="game-item" href="games/retro-bowl.html"><span class="label">retro bowl</span></a>
+                <a class="game-item" href="games/retro-highway.html"><span class="label">retro highway</span></a>
+                <a class="game-item" href="games/retro-ping-pong.html"><span class="label">retro ping pong</span></a>
+                <a class="game-item" href="games/riddle-school-2.html"><span class="label">riddle school 2</span></a>
+                <a class="game-item" href="games/riddle-school-3.html"><span class="label">riddle school 3</span></a>
+                <a class="game-item" href="games/riddle-school-4.html"><span class="label">riddle school 4</span></a>
+                <a class="game-item" href="games/riddle-school-5.html"><span class="label">riddle school 5</span></a>
+                <a class="game-item" href="games/riddle-school.html"><span class="label">riddle school</span></a>
+                <a class="game-item" href="games/riddle-transfer-2.html"><span class="label">riddle transfer 2</span></a>
+                <a class="game-item" href="games/riddle-transfer.html"><span class="label">riddle transfer</span></a>
+                <a class="game-item" href="games/rocket-soccer-derby.html"><span class="label">rocket soccer derby</span></a>
+                <a class="game-item" href="games/rooftop-snipers-2.html"><span class="label">rooftop snipers 2</span></a>
+                <a class="game-item" href="games/1v1.lol.html"><span class="label">1V1.LOL</span></a>
+                <a class="game-item" href="games/drift-boss.htm"><span class="label">drift boss</span></a>
+                <a class="game-item" href="games/wordle-unlimited.html"><span class="label">wordle unlimited</span></a>
+                <a class="game-item" href="games/zombie-rush.html"><span class="label">zombie rush</span></a>
+                <a class="game-item" href="games/vex-x3m.html"><span class="label">vex x3m</span></a>
+                <a  class="game-item" href="games/vex-x3m-2.html"><span class="label">vex 4</span></a>  
+            <A class="game-item" href="games/volley-random.html"><span class="label">volley random</span></a>
+            <A class="game-item" href="games/war-the-knights.html"><span class="label">war the knights</span></a>
+                <a class="game-item" href="games/tomb-of-the-mask.htm"><span class="label">tomb of the mask</span></a>  
+                <a class="game-item" href="games/temple-run-2.htm"><span class="label">temple run 2</span></a>
+                <a class="game-item" href="games/stickman-hook.html"><span class="label">stickman hook</span></a>
+           <a class="game-item" href="games/backrooms.html"><span class="label">backrooms</span></a>
+            l
+            </div>  
+ 
+        </script>
+        
+        
+               
+    </body>
+</html>

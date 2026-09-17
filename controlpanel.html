@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel</title>
+    <style>
+        :root { color-scheme: dark; font-family: Arial, sans-serif; }
+        body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #07111f; color: #edf9ff; }
+        .panel { width: min(92vw, 520px); padding: 28px; border: 1px solid #315d77; border-radius: 14px; background: #0d1d35; box-shadow: 0 20px 60px #0008; }
+        h1 { margin-top: 0; }
+        label { display: block; margin: 18px 0 8px; color: #8be9ff; font-weight: 700; }
+        input { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #315d77; border-radius: 8px; background: #07111f; color: inherit; }
+        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+        button { padding: 12px 8px; border: 1px solid #5ef2ff; border-radius: 8px; background: #123049; color: #edf9ff; font-weight: 700; cursor: pointer; }
+        button:hover { background: #1b4764; }
+        #status { min-height: 24px; margin-top: 18px; color: #ffd166; }
+        .hint { color: #a8bfd0; font-size: .9rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <main class="panel">
+        <h1>Matrix Control Panel</h1>
+        <p class="hint">Choose whether the games page is public, private, or completely shut down.</p>
+        <label for="adminPassword">Admin password</label>
+        <input id="adminPassword" type="password" placeholder="Enter admin password">
+        <div class="controls">
+            <button data-mode="public">Publish</button>
+            <button data-mode="private">Make Private</button>
+            <button data-mode="shutdown">Shutdown</button>
+        </div>
+        <p id="status" role="status">Loading status...</p>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
